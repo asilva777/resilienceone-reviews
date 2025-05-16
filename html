@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResilienceOne App Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .actions {
+            color: #007bff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ResilienceOne App Reviews</h1>
+        <table id="reviewsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Rating</th>
+                    <th>Comments</th>
+                    <th>Added On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Reviews will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const sampleComments = [
+            "Great app for mental resilience!",
+            "Helpful during stressful times.",
+            "User-friendly and effective.",
+            "Needs more features.",
+            "Crashes occasionally, but good overall.",
+            "I love the daily tips!",
+            "Not very intuitive.",
+            "Excellent support team.",
+            "Helped me build better habits.",
+            "Too many notifications.",
+            "Simple and straightforward.",
+            "Very motivating!",
+            "Could use a better UI design.",
+            "Nice content but lags sometimes.",
+            "Really useful for mindfulness."
+        ];
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomReview(index) {
+            const name = `User ${index}`;
+            const email = `user${index}@example.com`;
+            const rating = getRandomInt(1, 5);
+            const comment = sampleComments[getRandomInt(0, sampleComments.length - 1)];
+            const addedOn = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
+            return `<tr>
+                        <td>${index}</td>
+                        <td>${name}</td>
+                        <td>${email}</td>
+                        <td>${rating}</td>
+                        <td>${comment}</td>
+                        <td>${addedOn}</td>
+                        <td class="actions">View | Delete</td>
+                    </tr>`;
+        }
+
+        const reviewsTable = document.querySelector("#reviewsTable tbody");
+        for (let i = 1; i <= 100; i++) {
+            reviewsTable.innerHTML += generateRandomReview(i);
+        }
+    </script>
+</body>
+</html>
