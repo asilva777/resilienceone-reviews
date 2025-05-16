@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ResilienceOne App Reviews</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.0/src/wordcloud2.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,15 +13,13 @@
             margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 600px;
+        .container, .dashboard {
+            max-width: 700px;
             margin: auto;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-            position: relative;
         }
         h1, h2 {
             text-align: center;
@@ -28,19 +27,30 @@
         }
         .review {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 15px;
             padding: 15px;
             border-bottom: 1px solid #eee;
         }
-        .review strong {
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+        }
+        .review-content {
+            flex: 1;
+        }
+        .review-content strong {
             font-size: 1rem;
             color: #333;
         }
-        .review small {
+        .review-content small {
             color: #999;
             font-size: 0.8rem;
         }
-        .review p {
+        .review-content p {
             margin: 5px 0;
             font-size: 0.95rem;
         }
@@ -58,13 +68,9 @@
             0% { transform: translateY(0); }
             100% { transform: translateY(-100%); }
         }
-        .dashboard {
-            margin: 40px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        #wordCloud {
+            width: 100%;
+            height: 300px;
         }
     </style>
 </head>
@@ -72,63 +78,78 @@
     <div class="dashboard">
         <h2>Review Summary</h2>
         <canvas id="ratingChart" width="400" height="200"></canvas>
+        <h2>Keyword Highlights</h2>
+        <div id="wordCloud"></div>
     </div>
 
     <div class="container">
         <h1>Live Reviews</h1>
         <div class="marquee">
-            <div class="reviews" id="reviewList">
-                <!-- Dynamic reviews inserted here -->
-            </div>
+            <div class="reviews" id="reviewList"></div>
         </div>
     </div>
 
     <script>
         const sampleComments = [
-            "Great app for mental resilience!",
-            "Helpful during stressful times.",
-            "User-friendly and effective.",
-            "Needs more features.",
-            "Crashes occasionally, but good overall.",
-            "I love the daily tips!",
-            "Not very intuitive.",
-            "Excellent support team.",
-            "Helped me build better habits.",
-            "Too many notifications.",
-            "Simple and straightforward.",
-            "Very motivating!",
-            "Could use a better UI design.",
-            "Nice content but lags sometimes.",
-            "Really useful for mindfulness."
+            "This app transformed my life—resilience redefined!",
+            "Absolutely game-changing. I feel more empowered every day!",
+            "The most incredible self-help tool I've ever used!",
+            "I can’t imagine my daily routine without ResilienceOne now.",
+            "A breakthrough in personal development. Stunning!",
+            "Each feature is like a personal coach. Unbelievably effective.",
+            "My stress levels have dropped drastically—thank you!",
+            "A must-have app for anyone seeking growth and mental strength.",
+            "Five stars aren't enough. This app is a revelation!",
+            "Pure excellence. Worth every second spent on it."
         ];
+
+        const names = ["Alex", "Jordan", "Taylor", "Morgan", "Riley", "Casey", "Jamie", "Robin", "Skyler", "Quinn"];
+        const avatars = [
+            "https://i.pravatar.cc/50?img=1",
+            "https://i.pravatar.cc/50?img=2",
+            "https://i.pravatar.cc/50?img=3",
+            "https://i.pravatar.cc/50?img=4",
+            "https://i.pravatar.cc/50?img=5",
+            "https://i.pravatar.cc/50?img=6",
+            "https://i.pravatar.cc/50?img=7",
+            "https://i.pravatar.cc/50?img=8",
+            "https://i.pravatar.cc/50?img=9",
+            "https://i.pravatar.cc/50?img=10"
+        ];
+
+        const reviewList = document.getElementById("reviewList");
+        const ratingCounts = [0, 0, 0, 0, 0];
+        const wordArray = [];
 
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
         function generateReview(index, rating) {
-            const name = `User ${index}`;
-            const email = `user${index}@example.com`;
+            const name = names[getRandomInt(0, names.length - 1)];
+            const avatar = avatars[getRandomInt(0, avatars.length - 1)];
             const comment = sampleComments[getRandomInt(0, sampleComments.length - 1)];
             const date = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
+            comment.split(" ").forEach(word => wordArray.push(word));
+
             return `<div class="review">
-                        <strong>${name} (${rating}★)</strong>
-                        <small>${email} - ${date}</small>
-                        <p>${comment}</p>
+                        <div class="avatar" style="background-image:url('${avatar}')"></div>
+                        <div class="review-content">
+                            <strong>${name} (${rating}★)</strong><br>
+                            <small>${date}</small>
+                            <p>${comment}</p>
+                        </div>
                     </div>`;
         }
 
-        const reviewList = document.getElementById("reviewList");
-        const ratingCounts = [0, 0, 0, 0, 0];
-
         for (let i = 1; i <= 100; i++) {
-            const rating = getRandomInt(1, 5);
+            const rating = i <= 90 ? 5 : getRandomInt(1, 4);
             ratingCounts[rating - 1]++;
             reviewList.innerHTML += generateReview(i, rating);
         }
 
         const ctx = document.getElementById('ratingChart').getContext('2d');
-        const ratingChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
@@ -149,11 +170,25 @@
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        stepSize: 1
+                        beginAtZero: true
                     }
                 }
             }
+        });
+
+        WordCloud(document.getElementById('wordCloud'), {
+            list: Object.entries(
+                wordArray.reduce((acc, word) => {
+                    word = word.toLowerCase().replace(/[.,!]/g, "");
+                    acc[word] = (acc[word] || 0) + 1;
+                    return acc;
+                }, {})
+            ),
+            gridSize: 8,
+            weightFactor: 2,
+            color: 'random-dark',
+            rotateRatio: 0.5,
+            backgroundColor: '#fff'
         });
     </script>
 </body>
