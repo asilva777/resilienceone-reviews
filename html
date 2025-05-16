@@ -7,64 +7,67 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 1000px;
+            max-width: 600px;
             margin: auto;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
         }
         h1 {
             text-align: center;
             color: #333;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .review {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            animation: slideIn 30s linear infinite;
         }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
+        .review strong {
+            font-size: 1rem;
+            color: #333;
         }
-        th {
-            background-color: #4CAF50;
-            color: white;
+        .review small {
+            color: #999;
+            font-size: 0.8rem;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .review p {
+            margin: 5px 0;
+            font-size: 0.95rem;
         }
-        .actions {
-            color: #007bff;
-            cursor: pointer;
+        .marquee {
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        .reviews {
+            display: flex;
+            flex-direction: column;
+            animation: scrollUp 60s linear infinite;
+        }
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ResilienceOne App Reviews</h1>
-        <table id="reviewsTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Rating</th>
-                    <th>Comments</th>
-                    <th>Added On</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Reviews will be inserted here -->
-            </tbody>
-        </table>
+        <h1>Live Reviews</h1>
+        <div class="marquee">
+            <div class="reviews" id="reviewList">
+                <!-- Dynamic reviews inserted here -->
+            </div>
+        </div>
     </div>
 
     <script>
@@ -90,26 +93,22 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        function generateRandomReview(index) {
+        function generateReview(index) {
             const name = `User ${index}`;
             const email = `user${index}@example.com`;
             const rating = getRandomInt(1, 5);
             const comment = sampleComments[getRandomInt(0, sampleComments.length - 1)];
-            const addedOn = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
-            return `<tr>
-                        <td>${index}</td>
-                        <td>${name}</td>
-                        <td>${email}</td>
-                        <td>${rating}</td>
-                        <td>${comment}</td>
-                        <td>${addedOn}</td>
-                        <td class="actions">View | Delete</td>
-                    </tr>`;
+            const date = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
+            return `<div class="review">
+                        <strong>${name} (${rating}★)</strong>
+                        <small>${email} - ${date}</small>
+                        <p>${comment}</p>
+                    </div>`;
         }
 
-        const reviewsTable = document.querySelector("#reviewsTable tbody");
+        const reviewList = document.getElementById("reviewList");
         for (let i = 1; i <= 100; i++) {
-            reviewsTable.innerHTML += generateRandomReview(i);
+            reviewList.innerHTML += generateReview(i);
         }
     </script>
 </body>
