@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ResilienceOne App Reviews</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +22,7 @@
             overflow: hidden;
             position: relative;
         }
-        h1 {
+        h1, h2 {
             text-align: center;
             color: #333;
         }
@@ -30,7 +31,6 @@
             flex-direction: column;
             padding: 15px;
             border-bottom: 1px solid #eee;
-            animation: slideIn 30s linear infinite;
         }
         .review strong {
             font-size: 1rem;
@@ -58,9 +58,22 @@
             0% { transform: translateY(0); }
             100% { transform: translateY(-100%); }
         }
+        .dashboard {
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
+    <div class="dashboard">
+        <h2>Review Summary</h2>
+        <canvas id="ratingChart" width="400" height="200"></canvas>
+    </div>
+
     <div class="container">
         <h1>Live Reviews</h1>
         <div class="marquee">
@@ -93,10 +106,9 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        function generateReview(index) {
+        function generateReview(index, rating) {
             const name = `User ${index}`;
             const email = `user${index}@example.com`;
-            const rating = getRandomInt(1, 5);
             const comment = sampleComments[getRandomInt(0, sampleComments.length - 1)];
             const date = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
             return `<div class="review">
@@ -107,9 +119,42 @@
         }
 
         const reviewList = document.getElementById("reviewList");
+        const ratingCounts = [0, 0, 0, 0, 0];
+
         for (let i = 1; i <= 100; i++) {
-            reviewList.innerHTML += generateReview(i);
+            const rating = getRandomInt(1, 5);
+            ratingCounts[rating - 1]++;
+            reviewList.innerHTML += generateReview(i, rating);
         }
+
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        const ratingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                datasets: [{
+                    label: 'Number of Reviews',
+                    data: ratingCounts,
+                    backgroundColor: [
+                        '#ff4d4f',
+                        '#ff7a45',
+                        '#ffa940',
+                        '#73d13d',
+                        '#52c41a'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stepSize: 1
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
