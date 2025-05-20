@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResilienceOne App Reviews</title>
+    <title>Live Revivews</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.0/src/wordcloud2.min.js"></script>
     <style>
@@ -74,26 +74,6 @@
             width: 100%;
             height: 300px;
         }
-        .review-form {
-            margin-top: 30px;
-        }
-        .review-form input, .review-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .review-form button {
-            background-color: #52c41a;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-        }
     </style>
 </head>
 <body>
@@ -110,17 +90,6 @@
             <div class="reviews" id="reviewList"></div>
         </div>
 
-        <div class="review-form">
-            <h2>Submit Your Review</h2>
-            <form action="mailto://hello@cognitioplus.com" method="POST" enctype="text/plain">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="number" name="rating" placeholder="Rating (1 to 5)" min="1" max="5" required>
-                <textarea name="comment" placeholder="Your Review" rows="4" required></textarea>
-                <button type="submit">Send Review</button>
-            </form>
-        </div>
-    </div>
-
     <script>
         const sampleComments = [
             "This book transformed my life—resilience redefined!",
@@ -135,7 +104,7 @@
             "Pure excellence. Worth every second spent on it."
         ];
 
-        const names = ["Alex", "Jordan", "Taylor", "Morgan", "Riley", "Casey", "Jamie", "Robin", "Skyler", "Quinn"];
+        const names = ["Alex", "Jordan", "Roberto", "Fatima", "Choomie", "Adephsign", "Jamie", "Robin", "Tara", "Quinn"];
         const avatars = [
             "https://i.pravatar.cc/50?img=1",
             "https://i.pravatar.cc/50?img=2",
