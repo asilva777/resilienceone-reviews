@@ -7,8 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.0/src/wordcloud2.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
@@ -72,6 +74,26 @@
             width: 100%;
             height: 300px;
         }
+        .review-form {
+            margin-top: 30px;
+        }
+        .review-form input, .review-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .review-form button {
+            background-color: #52c41a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -86,6 +108,16 @@
         <h1>Live Reviews</h1>
         <div class="marquee">
             <div class="reviews" id="reviewList"></div>
+        </div>
+
+        <div class="review-form">
+            <h2>Submit Your Review</h2>
+            <form action="mailto:alvin.silva@cognitioplus.com" method="POST" enctype="text/plain">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="number" name="rating" placeholder="Rating (1 to 5)" min="1" max="5" required>
+                <textarea name="comment" placeholder="Your Review" rows="4" required></textarea>
+                <button type="submit">Send Review</button>
+            </form>
         </div>
     </div>
 
