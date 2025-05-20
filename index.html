@@ -1,196 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Revivews</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.0/src/wordcloud2.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+  <meta charset="UTF-8">
+  <title>ResilienceOne – Asia Reviews</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-        }
-        .container, .dashboard {
-            max-width: 700px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            text-align: center;
-            color: #333;
-        }
-        .review {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-size: cover;
-            background-position: center;
-        }
-        .review-content {
-            flex: 1;
-        }
-        .review-content strong {
-            font-size: 1rem;
-            color: #333;
-        }
-        .review-content small {
-            color: #999;
-            font-size: 0.8rem;
-        }
-        .review-content p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
-        .marquee {
-            height: 400px;
-            overflow: hidden;
-            position: relative;
-        }
-        .reviews {
-            display: flex;
-            flex-direction: column;
-            animation: scrollUp 60s linear infinite;
-        }
-        @keyframes scrollUp {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100%); }
-        }
-        #wordCloud {
-            width: 100%;
-            height: 300px;
-        }
-    </style>
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .review-stats {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .review-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 30px;
+      border-top: 1px solid #ddd;
+    }
+
+    .review {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .review strong {
+      font-size: 1rem;
+      color: #444;
+    }
+
+    .review small {
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    .review p {
+      margin-top: 5px;
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      display: block;
+      width: 200px;
+      margin: 0 auto 20px;
+      padding: 10px;
+      font-weight: 600;
+      background-color: #52c41a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .form-container {
+      display: none;
+      margin-top: 20px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-family: 'Montserrat', sans-serif;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .sentiment-row {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard">
-        <h2>Review Summary</h2>
-        <canvas id="ratingChart" width="400" height="200"></canvas>
-        <h2>Keyword Highlights</h2>
-        <div id="wordCloud"></div>
-    </div>
 
-    <div class="container">
-        <h1>Live Reviews</h1>
-        <div class="marquee">
-            <div class="reviews" id="reviewList"></div>
-        </div>
+<div class="container">
+  <h2>Personal Resilience & ResilienceOne Reviews</h2>
 
-    <script>
-        const sampleComments = [
-            "This book transformed my life—resilience redefined!",
-            "Absolutely game-changing. I feel more empowered every day!",
-            "The most incredible self-help tool I've ever used!",
-            "I can’t imagine my daily routine without Personal Resilience now.",
-            "A breakthrough in personal development. Stunning!",
-            "Each feature is like a personal coach. Unbelievably effective.",
-            "My stress levels have dropped drastically—thank you!",
-            "A must-have app for anyone seeking growth and mental strength.",
-            "Five stars aren't enough. This book and its app is a revelation!",
-            "Pure excellence. Worth every second spent on it."
-        ];
+  <div class="sentiment-row">
+    ❤️ Love &nbsp; | &nbsp; 🙌 Helpful &nbsp; | &nbsp; 🧠 Insightful &nbsp; | &nbsp; 💪 Empowering &nbsp; | &nbsp; 🌱 Growth-Oriented
+  </div>
 
-        const names = ["Alex", "Jordan", "Roberto", "Fatima", "Choomie", "Adephsign", "Jamie", "Robin", "Tara", "Quinn"];
-        const avatars = [
-            "https://i.pravatar.cc/50?img=1",
-            "https://i.pravatar.cc/50?img=2",
-            "https://i.pravatar.cc/50?img=3",
-            "https://i.pravatar.cc/50?img=4",
-            "https://i.pravatar.cc/50?img=5",
-            "https://i.pravatar.cc/50?img=6",
-            "https://i.pravatar.cc/50?img=7",
-            "https://i.pravatar.cc/50?img=8",
-            "https://i.pravatar.cc/50?img=9",
-            "https://i.pravatar.cc/50?img=10"
-        ];
+  <div class="review-stats">
+    <p><strong>1177</strong> Total Reviews — <strong>77%</strong> are <strong>5★</strong></p>
+  </div>
 
-        const reviewList = document.getElementById("reviewList");
-        const ratingCounts = [0, 0, 0, 0, 0];
-        const wordArray = [];
+  <div class="review-list" id="reviewList"></div>
 
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+  <button class="btn" onclick="toggleForm()">➕ Add Review</button>
 
-        function generateReview(index, rating) {
-            const name = names[getRandomInt(0, names.length - 1)];
-            const avatar = avatars[getRandomInt(0, avatars.length - 1)];
-            const comment = sampleComments[getRandomInt(0, sampleComments.length - 1)];
-            const date = new Date(Date.now() - getRandomInt(0, 365) * 86400000).toISOString().split('T')[0];
-            comment.split(" ").forEach(word => wordArray.push(word));
+  <div class="form-container" id="reviewForm">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <select id="country" required>
+      <option value="">Select Country</option>
+      <option>Philippines</option>
+      <option>India</option>
+      <option>Indonesia</option>
+      <option>Malaysia</option>
+      <option>Vietnam</option>
+      <option>Thailand</option>
+      <option>Japan</option>
+      <option>South Korea</option>
+      <option>Bangladesh</option>
+      <option>Nepal</option>
+      <option>Pakistan</option>
+      <option>Sri Lanka</option>
+      <option>Singapore</option>
+    </select>
+    <select id="rating" required>
+      <option value="">Rating (1 to 5)</option>
+      <option value="5">★★★★★ - Excellent</option>
+      <option value="4">★★★★ - Good</option>
+      <option value="3">★★★ - Average</option>
+      <option value="2">★★ - Poor</option>
+      <option value="1">★ - Very Poor</option>
+    </select>
+    <textarea id="comment" rows="4" placeholder="Your Review or Comment" required></textarea>
+    <button class="btn" onclick="submitReview()">Submit Review</button>
+  </div>
+</div>
 
-            return `<div class="review">
-                        <div class="avatar" style="background-image:url('${avatar}')"></div>
-                        <div class="review-content">
-                            <strong>${name} (${rating}★)</strong><br>
-                            <small>${date}</small>
-                            <p>${comment}</p>
-                        </div>
-                    </div>`;
-        }
+<script>
+  const reviews = [
+    { name: "Aiko", country: "Japan", rating: 5, comment: "This app truly helped me center myself during hard times." },
+    { name: "Ravi", country: "India", rating: 5, comment: "ResilienceOne gave me structure to reflect and grow emotionally." },
+    { name: "Dewi", country: "Indonesia", rating: 4, comment: "Great features, especially the daily check-ins!" },
+    { name: "Mina", country: "Philippines", rating: 5, comment: "Very empowering and beautifully designed app." },
+    { name: "Thuy", country: "Vietnam", rating: 5, comment: "It helps me stay mindful and strong through challenges." },
+    { name: "Sang", country: "South Korea", rating: 5, comment: "Very calming and insightful journaling process." },
+    { name: "Arjun", country: "Nepal", rating: 5, comment: "This book and app are a gift to mental wellness." }
+  ];
 
-        for (let i = 1; i <= 100; i++) {
-            const rating = i <= 90 ? 5 : getRandomInt(1, 4);
-            ratingCounts[rating - 1]++;
-            reviewList.innerHTML += generateReview(i, rating);
-        }
+  function renderReviews() {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '';
+    reviews.slice().reverse().forEach(r => {
+      list.innerHTML += `
+        <div class="review">
+          <strong>${r.name} (${r.country}) – ${r.rating}★</strong><br>
+          <p>${r.comment}</p>
+        </div>`;
+    });
+  }
 
-        const ctx = document.getElementById('ratingChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-                datasets: [{
-                    label: 'Number of Reviews',
-                    data: ratingCounts,
-                    backgroundColor: [
-                        '#ff4d4f',
-                        '#ff7a45',
-                        '#ffa940',
-                        '#73d13d',
-                        '#52c41a'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+  function toggleForm() {
+    const form = document.getElementById("reviewForm");
+    form.style.display = form.style.display === "none" ? "block" : "none";
+  }
 
-        WordCloud(document.getElementById('wordCloud'), {
-            list: Object.entries(
-                wordArray.reduce((acc, word) => {
-                    word = word.toLowerCase().replace(/[.,!]/g, "");
-                    acc[word] = (acc[word] || 0) + 1;
-                    return acc;
-                }, {})
-            ),
-            gridSize: 8,
-            weightFactor: 2,
-            color: 'random-dark',
-            rotateRatio: 0.5,
-            backgroundColor: '#fff'
-        });
-    </script>
+  function submitReview() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const country = document.getElementById('country').value;
+    const rating = parseInt(document.getElementById('rating').value);
+    const comment = document.getElementById('comment').value.trim();
+
+    if (!name || !email || !country || !rating || !comment) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    reviews.push({ name, country, rating, comment });
+    renderReviews();
+    document.getElementById("reviewForm").reset();
+    document.getElementById("reviewForm").style.display = "none";
+    alert("Thank you for your review!");
+  }
+
+  // Initial render
+  renderReviews();
+</script>
+
 </body>
 </html>
