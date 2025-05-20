@@ -1,0 +1,61 @@
+import pandas as pd
+import random
+from datetime import datetime, timedelta
+import faker
+
+fake = faker.Faker()
+
+# Settings
+num_reviews = 1777
+five_star_percentage = 0.77
+num_five_star = int(num_reviews * five_star_percentage)
+num_other_reviews = num_reviews - num_five_star
+
+# Generate ratings
+ratings = [5] * num_five_star + random.choices([4, 3, 2, 1], k=num_other_reviews)
+random.shuffle(ratings)
+
+# Review templates
+positive_comments = [
+    "The book changed my perspective on resilience.",
+    "ResilienceOne app is an everyday companion for emotional strength.",
+    "Both the book and app offer valuable insights.",
+    "Practical tips I can apply every day!",
+    "Very empowering experience overall."
+]
+
+mixed_comments = [
+    "The book is deep but the app needs more features.",
+    "I liked the exercises but found some parts hard to relate to.",
+    "Useful tools, but not a fan of the interface.",
+    "Book was good, app could use better UX.",
+    "Not bad, but expected a bit more personalization."
+]
+
+negative_comments = [
+    "App crashes too often.",
+    "Didn't resonate with the book.",
+    "Too basic for advanced users.",
+    "Hard to navigate the app.",
+    "Book felt repetitive."
+]
+
+# Generate review entries
+data = []
+start_date = datetime(2023, 1, 1)
+for i in range(num_reviews):
+    name = fake.first_name()
+    email = fake.email()
+    timestamp = (start_date + timedelta(days=random.randint(0, 500))).strftime("%Y-%m-%d %H:%M:%S")
+    rating = ratings[i]
+    if rating == 5:
+        comment = random.choice(positive_comments)
+    elif rating >= 3:
+        comment = random.choice(mixed_comments)
+    else:
+        comment = random.choice(negative_comments)
+    data.append([timestamp, email, name, rating, comment])
+
+# Create DataFrame
+df = pd.DataFrame(data, columns=["Time Stamp", "Email Address", "Name", "Rating", "Comment"])
+df.head()
