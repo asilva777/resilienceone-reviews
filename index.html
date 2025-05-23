@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>ResilienceOne – Asia Reviews</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN for drawing charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
@@ -30,6 +32,50 @@
     .review-stats {
       text-align: center;
       margin-bottom: 30px;
+    }
+
+    .charts-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .chart-container {
+      width: 300px;
+      min-width: 220px;
+    }
+
+    .rolling-feed-container {
+      max-width: 100%;
+      margin-bottom: 30px;
+      overflow: hidden;
+      background: #f0f5f0;
+      border-radius: 8px;
+      border: 1px solid #efefef;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .rolling-feed-content {
+      display: flex;
+      align-items: center;
+      animation: rolling 30s linear infinite;
+      white-space: nowrap;
+      will-change: transform;
+      min-width: 100%;
+    }
+    .rolling-review {
+      display: inline-block;
+      margin-right: 50px;
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.2;
+    }
+    @keyframes rolling {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
     }
 
     .review-list {
@@ -102,14 +148,25 @@
 <body>
 
 <div class="container">
-  <h2>Personal Resilience & ResilienceOne Reviews</h2>
+  <h2>Live Reviews</h2>
 
   <div class="sentiment-row">
     ❤️ Love &nbsp; | &nbsp; 🙌 Helpful &nbsp; | &nbsp; 🧠 Insightful &nbsp; | &nbsp; 💪 Empowering &nbsp; | &nbsp; 🌱 Growth-Oriented
   </div>
 
-  <div class="review-stats">
-    <p><strong>1177</strong> Total Reviews — <strong>77%</strong> are <strong>5★</strong></p>
+  <!-- Charts Section -->
+  <div class="charts-row">
+    <div class="chart-container">
+      <canvas id="ratingPieChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="countryBarChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Rolling Reviews Live Feed -->
+  <div class="rolling-feed-container">
+    <div class="rolling-feed-content" id="rollingFeed"></div>
   </div>
 
   <div class="review-list" id="reviewList"></div>
@@ -149,7 +206,8 @@
 </div>
 
 <script>
-  const reviews = [
+  // Review data (panel replaced, now global variable)
+  let reviews = [
     { name: "Aiko", country: "Japan", rating: 5, comment: "This app truly helped me center myself during hard times." },
     { name: "Ravi", country: "India", rating: 5, comment: "ResilienceOne gave me structure to reflect and grow emotionally." },
     { name: "Dewi", country: "Indonesia", rating: 4, comment: "Great features, especially the daily check-ins!" },
@@ -158,6 +216,10 @@
     { name: "Sang", country: "South Korea", rating: 5, comment: "Very calming and insightful journaling process." },
     { name: "Arjun", country: "Nepal", rating: 5, comment: "This book and app are a gift to mental wellness." }
   ];
+
+  // Chart handles (for updating)
+  let ratingPieChart;
+  let countryBarChart;
 
   function renderReviews() {
     const list = document.getElementById('reviewList');
@@ -169,6 +231,27 @@
           <p>${r.comment}</p>
         </div>`;
     });
+  }
+
+  // Rolling reviews live feed logic
+  function renderRollingFeed() {
+    const feed = document.getElementById('rollingFeed');
+    // Prepare the review snippets for the rolling feed
+    let rollingContent = '';
+    reviews.forEach(r => {
+      rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${r.comment}" <b>- ${r.name} (${r.country})</b></span>`;
+    });
+    // Duplicate the content so the feed appears continuous/looping
+    feed.innerHTML = rollingContent + rollingContent;
+  }
+
+  // Optional: Restart the animation when a new review is added for smoothness
+  function restartRollingFeedAnimation() {
+    const feed = document.getElementById('rollingFeed');
+    feed.style.animation = 'none';
+    // Force reflow
+    void feed.offsetWidth;
+    feed.style.animation = null;
   }
 
   function toggleForm() {
@@ -190,13 +273,89 @@
 
     reviews.push({ name, country, rating, comment });
     renderReviews();
+    renderRollingFeed();
+    restartRollingFeedAnimation();
+    updateCharts();
     document.getElementById("reviewForm").reset();
     document.getElementById("reviewForm").style.display = "none";
     alert("Thank you for your review!");
   }
 
+  // Chart.js logic for visual stats
+  function updateCharts() {
+    // Rating distribution
+    const ratingCounts = [0, 0, 0, 0, 0]; // index 0: 1-star, ..., 4: 5-star
+    reviews.forEach(r => {
+      if (r.rating >= 1 && r.rating <= 5) ratingCounts[r.rating - 1]++;
+    });
+
+    // Country distribution (top 8, rest grouped as "Other")
+    const countryMap = {};
+    reviews.forEach(r => {
+      countryMap[r.country] = (countryMap[r.country] || 0) + 1;
+    });
+    // Sort by count, take top 8
+    const sortedCountries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
+    const topCountries = sortedCountries.slice(0, 8);
+    const otherCount = sortedCountries.slice(8).reduce((sum, [, val]) => sum + val, 0);
+    const countryLabels = topCountries.map(([k]) => k);
+    if (otherCount > 0) countryLabels.push("Other");
+    const countryData = topCountries.map(([, v]) => v);
+    if (otherCount > 0) countryData.push(otherCount);
+
+    // Pie Chart for Ratings
+    if (ratingPieChart) ratingPieChart.destroy();
+    const pieCtx = document.getElementById('ratingPieChart').getContext('2d');
+    ratingPieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ["1★", "2★", "3★", "4★", "5★"],
+        datasets: [{
+          data: ratingCounts,
+          backgroundColor: [
+            "#ff7979", "#f6e58d", "#badc58", "#7ed6df", "#6ab04c"
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          title: { display: true, text: 'Rating Distribution' },
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // Bar Chart for Countries
+    if (countryBarChart) countryBarChart.destroy();
+    const barCtx = document.getElementById('countryBarChart').getContext('2d');
+    countryBarChart = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: countryLabels,
+        datasets: [{
+          data: countryData,
+          backgroundColor: "#52c41a"
+        }]
+      },
+      options: {
+        plugins: {
+          title: { display: true, text: 'Reviews by Country' },
+          legend: { display: false }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Country' }},
+          y: { beginAtZero: true, title: { display: true, text: 'Count' }, ticks: { precision:0 } }
+        }
+      }
+    });
+  }
+
   // Initial render
   renderReviews();
+  renderRollingFeed();
+  updateCharts();
+
+  // Remove the original const reviews panel if present (modernized)
 </script>
 
 </body>
