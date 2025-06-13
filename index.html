@@ -3,37 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <title>ResilienceOne – Asia Reviews</title>
+  <meta name="description" content="Read and submit reviews about ResilienceOne, an app focusing on personal growth in Asia.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <!-- Chart.js CDN for drawing charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
       margin: 0;
       background-color: #f8f9fa;
       padding: 20px;
+      color: #222;
     }
-
-    .container {
+    main.container {
       max-width: 800px;
       margin: auto;
-      background: white;
+      background: #fff;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
     h2 {
       text-align: center;
-      color: #333;
+      color: #222;
       margin-bottom: 10px;
     }
-
     .review-stats {
       text-align: center;
       margin-bottom: 30px;
     }
-
     .charts-row {
       display: flex;
       justify-content: center;
@@ -45,7 +44,6 @@
       width: 300px;
       min-width: 220px;
     }
-
     .rolling-feed-container {
       max-width: 100%;
       margin-bottom: 30px;
@@ -63,48 +61,41 @@
       align-items: center;
       animation: rolling 30s linear infinite;
       white-space: nowrap;
-      will-change: transform;
       min-width: 100%;
     }
     .rolling-review {
       display: inline-block;
       margin-right: 50px;
       font-size: 1rem;
-      color: #444;
+      color: #333;
       line-height: 1.2;
     }
     @keyframes rolling {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-
     .review-list {
       max-height: 300px;
       overflow-y: auto;
       margin-bottom: 30px;
       border-top: 1px solid #ddd;
     }
-
-    .review {
+    article.review {
       padding: 15px;
       border-bottom: 1px solid #eee;
     }
-
     .review strong {
       font-size: 1rem;
-      color: #444;
+      color: #333;
     }
-
     .review small {
       font-size: 0.8rem;
       color: #777;
     }
-
     .review p {
       margin-top: 5px;
       font-size: 0.95rem;
     }
-
     .btn {
       display: block;
       width: 200px;
@@ -112,101 +103,156 @@
       padding: 10px;
       font-weight: 600;
       background-color: #52c41a;
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-family: 'Montserrat', sans-serif;
+      transition: background 0.2s;
     }
-
+    .btn:focus {
+      outline: 2px solid #222;
+    }
+    .btn[disabled] {
+      background: #bfbfbf;
+      cursor: not-allowed;
+    }
     .form-container {
       display: none;
       margin-top: 20px;
     }
-
+    label {
+      font-weight: 600;
+      color: #222;
+      display: block;
+      margin-top: 15px;
+    }
     input, select, textarea {
       width: 100%;
       margin: 10px 0;
       padding: 10px;
       font-family: 'Montserrat', sans-serif;
-      border: 1px solid #ccc;
+      border: 1px solid #bbb;
       border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 1rem;
     }
-
     textarea {
       resize: vertical;
     }
-
     .sentiment-row {
       text-align: center;
       margin-bottom: 15px;
       font-size: 0.9rem;
       color: #666;
     }
+    @media (max-width: 600px) {
+      .charts-row { flex-direction: column; gap: 20px; }
+      .chart-container { width: 100%; min-width: 0; }
+    }
+    .loading {
+      text-align: center;
+      color: #52c41a;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .success-message {
+      text-align: center;
+      color: #52c41a;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .error-message {
+      text-align: center;
+      color: #ff7979;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-
-<div class="container">
+<main class="container" aria-label="Reviews main content">
   <h2>Live Reviews</h2>
-
-  <div class="sentiment-row">
+  <div class="sentiment-row" aria-label="Sentiment options">
     ❤️ Love &nbsp; | &nbsp; 🙌 Helpful &nbsp; | &nbsp; 🧠 Insightful &nbsp; | &nbsp; 💪 Empowering &nbsp; | &nbsp; 🌱 Growth-Oriented
   </div>
-
-  <!-- Charts Section -->
-  <div class="charts-row">
+  <section class="charts-row" aria-label="Review Statistics">
     <div class="chart-container">
-      <canvas id="ratingPieChart"></canvas>
+      <canvas id="ratingPieChart" aria-label="Rating Distribution Pie Chart" role="img"></canvas>
+      <noscript>Pie chart showing distribution of ratings.</noscript>
     </div>
     <div class="chart-container">
-      <canvas id="countryBarChart"></canvas>
+      <canvas id="countryBarChart" aria-label="Country Distribution Bar Chart" role="img"></canvas>
+      <noscript>Bar chart showing review counts by country.</noscript>
     </div>
-  </div>
-
-  <!-- Rolling Reviews Live Feed -->
-  <div class="rolling-feed-container">
+  </section>
+  <section class="rolling-feed-container" aria-live="polite">
     <div class="rolling-feed-content" id="rollingFeed"></div>
-  </div>
-
-  <div class="review-list" id="reviewList"></div>
-
-  <button class="btn" onclick="toggleForm()">➕ Add Review</button>
-
-  <div class="form-container" id="reviewForm">
-    <input type="text" id="name" placeholder="Your Name" required>
-    <input type="email" id="email" placeholder="Your Email" required>
-    <select id="country" required>
-      <option value="">Select Country</option>
-      <option>Philippines</option>
-      <option>India</option>
-      <option>Indonesia</option>
-      <option>Malaysia</option>
-      <option>Vietnam</option>
-      <option>Thailand</option>
-      <option>Japan</option>
-      <option>South Korea</option>
-      <option>Bangladesh</option>
-      <option>Nepal</option>
-      <option>Pakistan</option>
-      <option>Sri Lanka</option>
-      <option>Singapore</option>
-    </select>
-    <select id="rating" required>
-      <option value="">Rating (1 to 5)</option>
-      <option value="5">★★★★★ - Excellent</option>
-      <option value="4">★★★★ - Good</option>
-      <option value="3">★★★ - Average</option>
-      <option value="2">★★ - Poor</option>
-      <option value="1">★ - Very Poor</option>
-    </select>
-    <textarea id="comment" rows="4" placeholder="Your Review or Comment" required></textarea>
-    <button class="btn" onclick="submitReview()">Submit Review</button>
-  </div>
-</div>
-
+  </section>
+  <section class="review-list" id="reviewList" aria-label="Submitted Reviews"></section>
+  <button class="btn" aria-label="Add a new review" onclick="toggleForm()" id="addReviewBtn">➕ Add Review</button>
+  <form class="form-container" id="reviewForm" aria-label="Review submission form" autocomplete="off" novalidate>
+    <div>
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" placeholder="Your Name" required aria-required="true" maxlength="50">
+    </div>
+    <div>
+      <label for="email">Your Email</label>
+      <input type="email" id="email" name="email" placeholder="Your Email" required aria-required="true" maxlength="100" pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$">
+    </div>
+    <div>
+      <label for="country">Your Country</label>
+      <select id="country" name="country" required aria-required="true">
+        <option value="">Select Country</option>
+        <option>Philippines</option>
+        <option>India</option>
+        <option>Indonesia</option>
+        <option>Malaysia</option>
+        <option>Vietnam</option>
+        <option>Thailand</option>
+        <option>Japan</option>
+        <option>South Korea</option>
+        <option>Bangladesh</option>
+        <option>Nepal</option>
+        <option>Pakistan</option>
+        <option>Sri Lanka</option>
+        <option>Singapore</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div>
+      <label for="rating">Rating (1 to 5)</label>
+      <select id="rating" name="rating" required aria-required="true">
+        <option value="">Rating (1 to 5)</option>
+        <option value="5">★★★★★ - Excellent</option>
+        <option value="4">★★★★ - Good</option>
+        <option value="3">★★★ - Average</option>
+        <option value="2">★★ - Poor</option>
+        <option value="1">★ - Very Poor</option>
+      </select>
+    </div>
+    <div>
+      <label for="comment">Your Review or Comment</label>
+      <textarea id="comment" name="comment" rows="4" placeholder="Your Review or Comment" required aria-required="true" maxlength="500"></textarea>
+    </div>
+    <div id="formStatus" class="loading" style="display:none;"></div>
+    <button class="btn" type="submit" id="submitBtn" aria-label="Submit your review">Submit Review</button>
+  </form>
+  <div id="successMsg" class="success-message" role="status" aria-live="polite" style="display:none;"></div>
+  <div id="errorMsg" class="error-message" role="alert" style="display:none;"></div>
+</main>
 <script>
-  // Review data (panel replaced, now global variable)
+  // Sanitize user input for XSS protection
+  function sanitize(str) {
+    return str.replace(/[&<>"'`=\/]/g, s => (
+      {
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        '`': '&#96;', '=': '&#61;', '/': '&#47;'
+      }[s]
+    ));
+  }
+
+  // Review data (global variable)
   let reviews = [
     { name: "Aiko", country: "Japan", rating: 5, comment: "This app truly helped me center myself during hard times." },
     { name: "Ravi", country: "India", rating: 5, comment: "ResilienceOne gave me structure to reflect and grow emotionally." },
@@ -226,60 +272,92 @@
     list.innerHTML = '';
     reviews.slice().reverse().forEach(r => {
       list.innerHTML += `
-        <div class="review">
-          <strong>${r.name} (${r.country}) – ${r.rating}★</strong><br>
-          <p>${r.comment}</p>
-        </div>`;
+        <article class="review">
+          <strong>${sanitize(r.name)} (${sanitize(r.country)}) – ${r.rating}★</strong>
+          <p>${sanitize(r.comment)}</p>
+        </article>`;
     });
   }
 
   // Rolling reviews live feed logic
   function renderRollingFeed() {
     const feed = document.getElementById('rollingFeed');
-    // Prepare the review snippets for the rolling feed
     let rollingContent = '';
     reviews.forEach(r => {
-      rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${r.comment}" <b>- ${r.name} (${r.country})</b></span>`;
+      rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${sanitize(r.comment)}" <b>- ${sanitize(r.name)} (${sanitize(r.country)})</b></span>`;
     });
-    // Duplicate the content so the feed appears continuous/looping
+    // Duplicate content for smooth looping
     feed.innerHTML = rollingContent + rollingContent;
+    feed.style.willChange = 'transform';
   }
 
-  // Optional: Restart the animation when a new review is added for smoothness
+  // Optional: Restart animation for smoothness
   function restartRollingFeedAnimation() {
     const feed = document.getElementById('rollingFeed');
     feed.style.animation = 'none';
-    // Force reflow
     void feed.offsetWidth;
     feed.style.animation = null;
   }
 
   function toggleForm() {
     const form = document.getElementById("reviewForm");
-    form.style.display = form.style.display === "none" ? "block" : "none";
+    form.style.display = form.style.display === "none" || form.style.display === "" ? "block" : "none";
+    document.getElementById('successMsg').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
   }
 
-  function submitReview() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const country = document.getElementById('country').value;
-    const rating = parseInt(document.getElementById('rating').value);
-    const comment = document.getElementById('comment').value.trim();
-
-    if (!name || !email || !country || !rating || !comment) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    reviews.push({ name, country, rating, comment });
-    renderReviews();
-    renderRollingFeed();
-    restartRollingFeedAnimation();
-    updateCharts();
-    document.getElementById("reviewForm").reset();
-    document.getElementById("reviewForm").style.display = "none";
-    alert("Thank you for your review!");
+  function validateForm() {
+    let valid = true;
+    const name = document.getElementById('name');
+    const email = document.getElementById('email');
+    const country = document.getElementById('country');
+    const rating = document.getElementById('rating');
+    const comment = document.getElementById('comment');
+    const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    if (!name.value.trim() || name.value.length > 50) valid = false;
+    if (!email.value.trim() || !emailPattern.test(email.value) || email.value.length > 100) valid = false;
+    if (!country.value.trim()) valid = false;
+    if (!rating.value.trim()) valid = false;
+    if (!comment.value.trim() || comment.value.length > 500) valid = false;
+    return valid;
   }
+
+  document.getElementById('reviewForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('successMsg').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+    const formStatus = document.getElementById('formStatus');
+    formStatus.textContent = "Submitting your review...";
+    formStatus.style.display = "block";
+    document.getElementById('submitBtn').disabled = true;
+
+    setTimeout(() => { // Simulate loading
+      if (!validateForm()) {
+        formStatus.style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('errorMsg').textContent = "Please fill in all fields correctly.";
+        document.getElementById('errorMsg').style.display = 'block';
+        return;
+      }
+      const name = sanitize(document.getElementById('name').value.trim());
+      const email = sanitize(document.getElementById('email').value.trim());
+      const country = sanitize(document.getElementById('country').value);
+      const rating = parseInt(document.getElementById('rating').value);
+      const comment = sanitize(document.getElementById('comment').value.trim());
+
+      reviews.push({ name, country, rating, comment }); // Omit email for privacy
+      renderReviews();
+      renderRollingFeed();
+      restartRollingFeedAnimation();
+      updateCharts();
+      document.getElementById("reviewForm").reset();
+      document.getElementById("reviewForm").style.display = "none";
+      formStatus.style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('successMsg').textContent = "Thank you for your review!";
+      document.getElementById('successMsg').style.display = 'block';
+    }, 700);
+  });
 
   // Chart.js logic for visual stats
   function updateCharts() {
@@ -294,7 +372,6 @@
     reviews.forEach(r => {
       countryMap[r.country] = (countryMap[r.country] || 0) + 1;
     });
-    // Sort by count, take top 8
     const sortedCountries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
     const topCountries = sortedCountries.slice(0, 8);
     const otherCount = sortedCountries.slice(8).reduce((sum, [, val]) => sum + val, 0);
@@ -318,6 +395,7 @@
         }]
       },
       options: {
+        responsive: true,
         plugins: {
           title: { display: true, text: 'Rating Distribution' },
           legend: { position: 'bottom' }
@@ -338,6 +416,7 @@
         }]
       },
       options: {
+        responsive: true,
         plugins: {
           title: { display: true, text: 'Reviews by Country' },
           legend: { display: false }
@@ -354,9 +433,6 @@
   renderReviews();
   renderRollingFeed();
   updateCharts();
-
-  // Remove the original const reviews panel if present (modernized)
 </script>
-
 </body>
 </html>
