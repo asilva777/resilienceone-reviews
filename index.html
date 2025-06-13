@@ -6,7 +6,6 @@
   <meta name="description" content="Read and submit reviews about ResilienceOne, an app focusing on personal growth in Asia.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Chart.js CDN for drawing charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
   <style>
     body {
@@ -28,10 +27,6 @@
       text-align: center;
       color: #222;
       margin-bottom: 10px;
-    }
-    .review-stats {
-      text-align: center;
-      margin-bottom: 30px;
     }
     .charts-row {
       display: flex;
@@ -252,25 +247,24 @@
     ));
   }
 
-  // Review data (global variable)
-  let reviews = [
-    { name: "Aiko", country: "Japan", rating: 5, comment: "This app truly helped me center myself during hard times." },
-    { name: "Ravi", country: "India", rating: 5, comment: "ResilienceOne gave me structure to reflect and grow emotionally." },
-    { name: "Dewi", country: "Indonesia", rating: 4, comment: "Great features, especially the daily check-ins!" },
-    { name: "Mina", country: "Philippines", rating: 5, comment: "Very empowering and beautifully designed app." },
-    { name: "Thuy", country: "Vietnam", rating: 5, comment: "It helps me stay mindful and strong through challenges." },
-    { name: "Sang", country: "South Korea", rating: 5, comment: "Very calming and insightful journaling process." },
-    { name: "Arjun", country: "Nepal", rating: 5, comment: "This book and app are a gift to mental wellness." }
-  ];
+  let reviews = [];
 
-  // Chart handles (for updating)
-  let ratingPieChart;
-  let countryBarChart;
+  async function fetchReviews() {
+    try {
+      const res = await fetch('http://localhost:3000/api/reviews');
+      reviews = await res.json();
+      renderReviews();
+      renderRollingFeed();
+      updateCharts();
+    } catch (e) {
+      document.getElementById('reviewList').innerHTML = '<div class="error-message">Failed to load reviews. Please try again later.</div>';
+    }
+  }
 
   function renderReviews() {
     const list = document.getElementById('reviewList');
     list.innerHTML = '';
-    reviews.slice().reverse().forEach(r => {
+    reviews.forEach(r => {
       list.innerHTML += `
         <article class="review">
           <strong>${sanitize(r.name)} (${sanitize(r.country)}) – ${r.rating}★</strong>
@@ -279,19 +273,16 @@
     });
   }
 
-  // Rolling reviews live feed logic
   function renderRollingFeed() {
     const feed = document.getElementById('rollingFeed');
     let rollingContent = '';
     reviews.forEach(r => {
       rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${sanitize(r.comment)}" <b>- ${sanitize(r.name)} (${sanitize(r.country)})</b></span>`;
     });
-    // Duplicate content for smooth looping
     feed.innerHTML = rollingContent + rollingContent;
     feed.style.willChange = 'transform';
   }
 
-  // Optional: Restart animation for smoothness
   function restartRollingFeedAnimation() {
     const feed = document.getElementById('rollingFeed');
     feed.style.animation = 'none';
@@ -322,7 +313,7 @@
     return valid;
   }
 
-  document.getElementById('reviewForm').addEventListener('submit', function(e){
+  document.getElementById('reviewForm').addEventListener('submit', async function(e){
     e.preventDefault();
     document.getElementById('successMsg').style.display = 'none';
     document.getElementById('errorMsg').style.display = 'none';
@@ -331,42 +322,49 @@
     formStatus.style.display = "block";
     document.getElementById('submitBtn').disabled = true;
 
-    setTimeout(() => { // Simulate loading
-      if (!validateForm()) {
-        formStatus.style.display = 'none';
-        document.getElementById('submitBtn').disabled = false;
-        document.getElementById('errorMsg').textContent = "Please fill in all fields correctly.";
-        document.getElementById('errorMsg').style.display = 'block';
-        return;
-      }
-      const name = sanitize(document.getElementById('name').value.trim());
-      const email = sanitize(document.getElementById('email').value.trim());
-      const country = sanitize(document.getElementById('country').value);
-      const rating = parseInt(document.getElementById('rating').value);
-      const comment = sanitize(document.getElementById('comment').value.trim());
+    if (!validateForm()) {
+      formStatus.style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('errorMsg').textContent = "Please fill in all fields correctly.";
+      document.getElementById('errorMsg').style.display = 'block';
+      return;
+    }
 
-      reviews.push({ name, country, rating, comment }); // Omit email for privacy
-      renderReviews();
-      renderRollingFeed();
-      restartRollingFeedAnimation();
-      updateCharts();
+    const name = sanitize(document.getElementById('name').value.trim());
+    const email = sanitize(document.getElementById('email').value.trim());
+    const country = sanitize(document.getElementById('country').value);
+    const rating = parseInt(document.getElementById('rating').value);
+    const comment = sanitize(document.getElementById('comment').value.trim());
+
+    try {
+      const res = await fetch('http://localhost:3000/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, country, rating, comment })
+      });
+      if (!res.ok) throw new Error('Server error');
+      await fetchReviews();
       document.getElementById("reviewForm").reset();
       document.getElementById("reviewForm").style.display = "none";
       formStatus.style.display = 'none';
       document.getElementById('submitBtn').disabled = false;
       document.getElementById('successMsg').textContent = "Thank you for your review!";
       document.getElementById('successMsg').style.display = 'block';
-    }, 700);
+    } catch (e) {
+      formStatus.style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('errorMsg').textContent = "Failed to submit review. Please try again.";
+      document.getElementById('errorMsg').style.display = 'block';
+    }
   });
 
-  // Chart.js logic for visual stats
+  let ratingPieChart, countryBarChart;
   function updateCharts() {
     // Rating distribution
     const ratingCounts = [0, 0, 0, 0, 0]; // index 0: 1-star, ..., 4: 5-star
     reviews.forEach(r => {
       if (r.rating >= 1 && r.rating <= 5) ratingCounts[r.rating - 1]++;
     });
-
     // Country distribution (top 8, rest grouped as "Other")
     const countryMap = {};
     reviews.forEach(r => {
@@ -430,9 +428,7 @@
   }
 
   // Initial render
-  renderReviews();
-  renderRollingFeed();
-  updateCharts();
+  fetchReviews();
 </script>
 </body>
 </html>
