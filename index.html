@@ -7,6 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
+  <script>
+fetch('http://localhost:3001/api/hello')
+  .then(res => res.json())
+  .then(data => {
+    console.log(data.message); // Should print 'Back-end is working!'
+  });
+</script>
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
