@@ -14,15 +14,33 @@
   <link rel="icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Scripts: Add integrity/crossorigin if possible -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <script src="main.js" defer></script>
+  <!-- Favicons -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <!-- Fonts and CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main class="container" aria-label="Reviews main content">
+  <noscript>
+    <div class="noscript-warning" style="color: #b00; background: #ffeaea; padding: 1em; margin-bottom: 1em;">
+      This site requires JavaScript to function properly. Please enable JavaScript in your browser.
+    </div>
+  </noscript>
+  <!-- Main Heading for SEO and Accessibility -->
+  <h1>ResilienceOne – Asia Reviews</h1>
   <h2>Live Reviews</h2>
+<!-- Sentiment Options -->
   <div class="sentiment-row" aria-label="Sentiment options">
     ❤️ Love &nbsp; | &nbsp; 🙌 Helpful &nbsp; | &nbsp; 🧠 Insightful &nbsp; | &nbsp; 💪 Empowering &nbsp; | &nbsp; 🌱 Growth-Oriented
   </div>
+<!-- Review Statistics Charts -->
+  <!-- Review Charts Section -->
   <section class="charts-row" aria-label="Review Statistics">
     <div class="chart-container">
       <canvas id="ratingPieChart" aria-label="Rating Distribution Pie Chart" role="img"></canvas>
@@ -33,22 +51,42 @@
       <noscript>Bar chart showing review counts by country.</noscript>
     </div>
   </section>
+<!-- Rolling Feed Section -->
+  <!-- Rolling Feed for Live Updates -->
   <section class="rolling-feed-container" aria-live="polite">
     <div class="rolling-feed-content" id="rollingFeed"></div>
   </section>
+    <!-- Review List Section with Schema.org Structured Data -->
+  <!-- Submitted Reviews -->
   <section class="review-list" id="reviewList" aria-label="Submitted Reviews">
     <div id="loadingIndicator" class="loading">Loading reviews...</div>
+    <!--
+      Example review structure:
+      <div itemscope itemtype="http://schema.org/Review" class="review-item">
+        <span itemprop="author">Jane Doe</span>
+        <span itemprop="reviewBody">This app changed my life!</span>
+        <span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+          <meta itemprop="worstRating" content="1"/>
+          <span itemprop="ratingValue">5</span> / <span itemprop="bestRating">5</span>
+        </span>
+      </div>
+      (Note: Actual reviews are rendered dynamically by main.js)
+    -->
   </section>
+    <!-- Add Review Button -->
   <button class="btn" aria-label="Add a new review" id="addReviewBtn" type="button">➕ Add Review</button>
+
+ <!-- Review Submission Form Section -->
+  <!-- Review Form -->
   <form class="form-container" id="reviewForm" aria-label="Review submission form" autocomplete="off" novalidate>
     <div>
       <label for="name">Your Name</label>
-      <input type="text" id="name" name="name" placeholder="Your Name" required aria-required="true" maxlength="50">
+      <input type="text" id="name" name="name" placeholder="Your Name" required aria-required="true" maxlength="50" autocomplete="name">
       <span class="inline-error" id="nameError" aria-live="polite"></span>
     </div>
     <div>
       <label for="email">Your Email</label>
-      <input type="email" id="email" name="email" placeholder="Your Email" required aria-required="true" maxlength="100" pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$">
+      <input type="email" id="email" name="email" placeholder="Your Email" required aria-required="true" maxlength="100" pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$" autocomplete="email">
       <span class="inline-error" id="emailError" aria-live="polite"></span>
     </div>
     <div>
@@ -72,5 +110,16 @@
   <div id="successMsg" class="success-message" role="status" aria-live="polite" style="display:none;"></div>
   <div id="errorMsg" class="error-message" role="alert" style="display:none;"></div>
 </main>
+  <!-- Optional: Add structured data as JSON-LD for better SEO -->
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "name": "ResilienceOne – Asia Reviews",
+  "url": "https://resilienceone.example.com/"
+}
+</script>
+</body>
+</html>
 </body>
 </html>
