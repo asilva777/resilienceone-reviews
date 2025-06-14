@@ -1,259 +1,211 @@
-// ====== Configuration ======
-const COUNTRY_OPTIONS = [
-  "Philippines", "India", "Indonesia", "Malaysia", "Vietnam", "Thailand", "Japan", "South Korea",
-  "Bangladesh", "Nepal", "Pakistan", "Sri Lanka", "Singapore", "Other"
-];
-const RATING_OPTIONS = [
-  { value: "5", label: "★★★★★ - Excellent" },
-  { value: "4", label: "★★★★ - Good" },
-  { value: "3", label: "★★★ - Average" },
-  { value: "2", label: "★★ - Poor" },
-  { value: "1", label: "★ - Very Poor" },
-];
-
-// ====== Utility Functions ======
-function sanitize(str) {
-  return String(str).replace(/[&<>"'`=\/]/g, s => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-    '`': '&#96;', '=': '&#61;', '/': '&#47;'
-  }[s]));
-}
-
-// ====== DOM Elements ======
-const reviewList = document.getElementById('reviewList');
-const rollingFeed = document.getElementById('rollingFeed');
-const reviewForm = document.getElementById('reviewForm');
-const addReviewBtn = document.getElementById('addReviewBtn');
-const successMsg = document.getElementById('successMsg');
-const errorMsg = document.getElementById('errorMsg');
-const formStatus = document.getElementById('formStatus');
-const submitBtn = document.getElementById('submitBtn');
-const loadingIndicator = document.getElementById('loadingIndicator');
-
-// ====== Dynamic Select Options ======
-function populateSelectOptions() {
-  const countrySelect = document.getElementById('country');
-  countrySelect.innerHTML = `<option value="">Select Country</option>` +
-    COUNTRY_OPTIONS.map(c => `<option>${c}</option>`).join('');
-  const ratingSelect = document.getElementById('rating');
-  ratingSelect.innerHTML = `<option value="">Rating (1 to 5)</option>` +
-    RATING_OPTIONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
-}
-
-// ====== Reviews State ======
-let reviews = [];
-let ratingPieChart, countryBarChart;
-
-// ====== Fetch and Render ======
-async function fetchReviews() {
-  loadingIndicator.style.display = "block";
-  try {
-    const res = await fetch('/api/reviews');
-    reviews = await res.json();
-    renderReviews();
-    renderRollingFeed();
-    updateCharts();
-    loadingIndicator.style.display = "none";
-  } catch (e) {
-    reviewList.innerHTML = '<div class="error-message">Failed to load reviews. Please try again later.</div>';
-    loadingIndicator.style.display = "none";
+// Dummy reviews for demonstration; replace with your actual data or data source.
+const reviews = [
+  {
+    author: "Jane Doe",
+    reviewBody: "This app changed my life!",
+    rating: 5
+  },
+  {
+    author: "John Smith",
+    reviewBody: "Very insightful and empowering.",
+    rating: 4
   }
-}
+  // More reviews...
+];
 
-function renderReviews() {
+// Utility to render reviews using schema.org markup
+function renderReviews(reviews) {
+  const reviewList = document.getElementById('reviewList');
+  if (!reviewList) return;
+
+  // Remove loading indicator if present
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+  // Clear existing reviews
   reviewList.innerHTML = '';
-  reviews.forEach(r => {
-    reviewList.innerHTML += `
-      <article class="review">
-        <strong>${sanitize(r.name)} (${sanitize(r.country)}) – ${r.rating}★</strong>
-        <p>${sanitize(r.comment)}</p>
-      </article>`;
+
+  reviews.forEach(review => {
+    const div = document.createElement('div');
+    div.setAttribute('itemscope', '');
+    div.setAttribute('itemtype', 'http://schema.org/Review');
+    div.className = 'review-item';
+
+    // Author
+    const authorSpan = document.createElement('span');
+    authorSpan.setAttribute('itemprop', 'author');
+    authorSpan.textContent = review.author;
+    div.appendChild(authorSpan);
+
+    div.appendChild(document.createTextNode(' — '));
+
+    // Review body
+    const bodySpan = document.createElement('span');
+    bodySpan.setAttribute('itemprop', 'reviewBody');
+    bodySpan.textContent = review.reviewBody;
+    div.appendChild(bodySpan);
+
+    div.appendChild(document.createElement('br'));
+
+    // Rating (schema.org)
+    const ratingSpan = document.createElement('span');
+    ratingSpan.setAttribute('itemprop', 'reviewRating');
+    ratingSpan.setAttribute('itemscope', '');
+    ratingSpan.setAttribute('itemtype', 'http://schema.org/Rating');
+
+    const worstMeta = document.createElement('meta');
+    worstMeta.setAttribute('itemprop', 'worstRating');
+    worstMeta.setAttribute('content', '1');
+    ratingSpan.appendChild(worstMeta);
+
+    const ratingValueSpan = document.createElement('span');
+    ratingValueSpan.setAttribute('itemprop', 'ratingValue');
+    ratingValueSpan.textContent = review.rating;
+    ratingSpan.appendChild(ratingValueSpan);
+
+    ratingSpan.appendChild(document.createTextNode(' / '));
+
+    const bestRatingSpan = document.createElement('span');
+    bestRatingSpan.setAttribute('itemprop', 'bestRating');
+    bestRatingSpan.textContent = '5';
+    ratingSpan.appendChild(bestRatingSpan);
+
+    div.appendChild(ratingSpan);
+
+    reviewList.appendChild(div);
   });
+
+  if (reviews.length === 0) {
+    const empty = document.createElement('div');
+    empty.textContent = "No reviews yet. Be the first to submit one!";
+    reviewList.appendChild(empty);
+  }
 }
 
-function renderRollingFeed() {
-  let rollingContent = '';
-  reviews.forEach(r => {
-    rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${sanitize(r.comment)}" <b>- ${sanitize(r.name)} (${sanitize(r.country)})</b></span>`;
-  });
-  rollingFeed.innerHTML = rollingContent + rollingContent;
-  rollingFeed.style.willChange = 'transform';
-}
+// Setup form behavior for UX and accessibility
+document.addEventListener('DOMContentLoaded', function () {
+  // Render initial reviews
+  renderReviews(reviews);
 
-function updateCharts() {
-  // Rating distribution
-  const ratingCounts = [0, 0, 0, 0, 0];
-  reviews.forEach(r => {
-    if (r.rating >= 1 && r.rating <= 5) ratingCounts[r.rating - 1]++;
-  });
-  // Country distribution (top 8, rest grouped as "Other")
-  const countryMap = {};
-  reviews.forEach(r => {
-    countryMap[r.country] = (countryMap[r.country] || 0) + 1;
-  });
-  const sortedCountries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
-  const topCountries = sortedCountries.slice(0, 8);
-  const otherCount = sortedCountries.slice(8).reduce((sum, [, v]) => sum + v, 0);
-  const countryLabels = topCountries.map(([k]) => k);
-  if (otherCount > 0) countryLabels.push("Other");
-  const countryData = topCountries.map(([, v]) => v);
-  if (otherCount > 0) countryData.push(otherCount);
-
-  // Pie Chart for Ratings
-  if (ratingPieChart) ratingPieChart.destroy();
-  const pieCtx = document.getElementById('ratingPieChart').getContext('2d');
-  ratingPieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-      labels: ["1★", "2★", "3★", "4★", "5★"],
-      datasets: [{
-        data: ratingCounts,
-        backgroundColor: [
-          "#ff7979", "#f6e58d", "#badc58", "#7ed6df", "#6ab04c"
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: { display: true, text: 'Rating Distribution' },
-        legend: { position: 'bottom' }
-      }
+  // Populate rating select
+  const ratingSelect = document.getElementById('rating');
+  if (ratingSelect) {
+    ratingSelect.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      ratingSelect.appendChild(opt);
     }
-  });
-
-  // Bar Chart for Countries
-  if (countryBarChart) countryBarChart.destroy();
-  const barCtx = document.getElementById('countryBarChart').getContext('2d');
-  countryBarChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-      labels: countryLabels,
-      datasets: [{
-        data: countryData,
-        backgroundColor: "#52c41a"
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: { display: true, text: 'Reviews by Country' },
-        legend: { display: false }
-      },
-      scales: {
-        x: { title: { display: true, text: 'Country' }},
-        y: { beginAtZero: true, title: { display: true, text: 'Count' }, ticks: { precision:0 } }
-      }
-    }
-  });
-}
-
-// ====== Form Handling ======
-function toggleForm() {
-  reviewForm.style.display = reviewForm.style.display === "none" || reviewForm.style.display === "" ? "block" : "none";
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
-  clearInlineErrors();
-}
-
-function clearInlineErrors() {
-  ['nameError', 'emailError', 'countryError', 'ratingError', 'commentError'].forEach(id => {
-    document.getElementById(id).textContent = '';
-  });
-}
-
-function validateForm() {
-  let valid = true;
-  clearInlineErrors();
-
-  const name = document.getElementById('name');
-  const email = document.getElementById('email');
-  const country = document.getElementById('country');
-  const rating = document.getElementById('rating');
-  const comment = document.getElementById('comment');
-  const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
-  if (!name.value.trim() || name.value.length > 50) {
-    document.getElementById('nameError').textContent = "Please enter your name (max 50 chars).";
-    valid = false;
-  }
-  if (!email.value.trim() || !emailPattern.test(email.value) || email.value.length > 100) {
-    document.getElementById('emailError').textContent = "Enter a valid email (max 100 chars).";
-    valid = false;
-  }
-  if (!country.value.trim()) {
-    document.getElementById('countryError').textContent = "Please select a country.";
-    valid = false;
-  }
-  if (!rating.value.trim()) {
-    document.getElementById('ratingError').textContent = "Please select a rating.";
-    valid = false;
-  }
-  if (!comment.value.trim() || comment.value.length > 500) {
-    document.getElementById('commentError').textContent = "Comment is required (max 500 chars).";
-    valid = false;
   }
 
-  return valid;
-}
-
-reviewForm.addEventListener('submit', async function(e){
-  e.preventDefault();
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
-  formStatus.textContent = "Submitting your review...";
-  formStatus.style.display = "block";
-  submitBtn.disabled = true;
-
-  if (!validateForm()) {
-    formStatus.style.display = 'none';
-    submitBtn.disabled = false;
-    errorMsg.textContent = "Please fill in all fields correctly.";
-    errorMsg.style.display = 'block';
-    return;
-  }
-
-  // Confirmation dialog
-  if (!window.confirm("Are you sure you want to submit your review?")) {
-    formStatus.style.display = 'none';
-    submitBtn.disabled = false;
-    return;
-  }
-
-  const name = sanitize(document.getElementById('name').value.trim());
-  const country = sanitize(document.getElementById('country').value);
-  const rating = parseInt(document.getElementById('rating').value);
-  const comment = sanitize(document.getElementById('comment').value.trim());
-
-  try {
-    const res = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, country, rating, comment })
+  // Populate country select (simple example; replace with real country list)
+  const countrySelect = document.getElementById('country');
+  if (countrySelect) {
+    const countries = ['Select Country', 'Singapore', 'Malaysia', 'Indonesia', 'Thailand', 'Vietnam', 'Philippines', 'Other'];
+    countrySelect.innerHTML = '';
+    countries.forEach(function (name, idx) {
+      const opt = document.createElement('option');
+      opt.value = idx === 0 ? '' : name;
+      opt.textContent = name;
+      if (idx === 0) opt.disabled = true;
+      countrySelect.appendChild(opt);
     });
-    if (!res.ok) throw new Error('Server error');
-    await fetchReviews();
-    reviewForm.reset();
-    reviewForm.style.display = "none";
-    formStatus.style.display = 'none';
-    submitBtn.disabled = false;
-    successMsg.textContent = "Thank you for your review!";
-    successMsg.style.display = 'block';
-    // Scroll to reviews section
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch (e) {
-    formStatus.style.display = 'none';
-    submitBtn.disabled = false;
-    errorMsg.textContent = "Failed to submit review. Please try again.";
-    errorMsg.style.display = 'block';
   }
-});
 
-// ====== Event Listeners ======
-addReviewBtn.addEventListener('click', toggleForm);
+  // Show/hide form
+  const addReviewBtn = document.getElementById('addReviewBtn');
+  const reviewForm = document.getElementById('reviewForm');
+  if (addReviewBtn && reviewForm) {
+    addReviewBtn.addEventListener('click', function () {
+      reviewForm.style.display = reviewForm.style.display === 'none' || !reviewForm.style.display ? 'block' : 'none';
+      if (reviewForm.style.display === 'block') {
+        reviewForm.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 
-// ====== Initialize ======
-window.addEventListener('DOMContentLoaded', () => {
-  populateSelectOptions();
-  fetchReviews();
+  // Form submission with button disable and error handling
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const successMsg = document.getElementById('successMsg');
+      const errorMsg = document.getElementById('errorMsg');
+      if (successMsg) successMsg.style.display = 'none';
+      if (errorMsg) errorMsg.style.display = 'none';
+
+      // Collect form data
+      const author = reviewForm.name.value.trim();
+      const email = reviewForm.email.value.trim();
+      const country = reviewForm.country.value;
+      const rating = parseInt(reviewForm.rating.value, 10);
+      const reviewBody = reviewForm.comment.value.trim();
+
+      // Basic validation
+      let valid = true;
+      // Clear errors
+      ['nameError','emailError','countryError','ratingError','commentError'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '';
+      });
+
+      // Name validation
+      if (!author) {
+        document.getElementById('nameError').textContent = "Name is required.";
+        valid = false;
+      }
+      // Email validation (HTML5 pattern)
+      if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        document.getElementById('emailError').textContent = "Valid email is required.";
+        valid = false;
+      }
+      // Country
+      if (!country) {
+        document.getElementById('countryError').textContent = "Country is required.";
+        valid = false;
+      }
+      // Rating
+      if (!rating || rating < 1 || rating > 5) {
+        document.getElementById('ratingError').textContent = "Rating must be 1 to 5.";
+        valid = false;
+      }
+      // Comment
+      if (!reviewBody) {
+        document.getElementById('commentError').textContent = "Review/comment is required.";
+        valid = false;
+      }
+
+      if (!valid) {
+        return;
+      }
+
+      // Disable submit button for UX
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      // Simulate async save (replace with your AJAX/fetch/backend logic)
+      setTimeout(function () {
+        // Add review (in real app, do this after API success)
+        reviews.unshift({
+          author: author,
+          reviewBody: reviewBody,
+          rating: rating
+        });
+        renderReviews(reviews);
+
+        // Reset form and re-enable button
+        reviewForm.reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+
+        if (successMsg) {
+          successMsg.textContent = "Thank you! Your review was submitted.";
+          successMsg.style.display = 'block';
+        }
+        reviewForm.style.display = 'none';
+      }, 1200);
+    });
+  }
 });
