@@ -56,22 +56,38 @@
   <section class="rolling-feed-container" aria-live="polite">
     <div class="rolling-feed-content" id="rollingFeed"></div>
   </section>
-    <!-- Review List Section with Schema.org Structured Data -->
-  <!-- Submitted Reviews -->
-  <section class="review-list" id="reviewList" aria-label="Submitted Reviews">
-    <div id="loadingIndicator" class="loading">Loading reviews...</div>
-    <!--
-      Example review structure:
-      <div itemscope itemtype="http://schema.org/Review" class="review-item">
-        <span itemprop="author">Jane Doe</span>
-        <span itemprop="reviewBody">This app changed my life!</span>
-        <span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
-          <meta itemprop="worstRating" content="1"/>
-          <span itemprop="ratingValue">5</span> / <span itemprop="bestRating">5</span>
-        </span>
-      </div>
-      (Note: Actual reviews are rendered dynamically by main.js)
-    -->
+    div class="form-container" id="reviewForm">
+  <input type="text" id="name" placeholder="Your Name" required>
+  <input type="email" id="email" placeholder="Your Email" required>
+  <select id="country" required>
+    <option value="">Select Country</option>
+    <option>Philippines</option>
+    <option>India</option>
+    <option>Indonesia</option>
+    <option>Malaysia</option>
+    <option>Vietnam</option>
+    <option>Thailand</option>
+    <option>Japan</option>
+    <option>South Korea</option>
+    <option>Bangladesh</option>
+    <option>Nepal</option>
+    <option>Pakistan</option>
+    <option>Sri Lanka</option>
+    <option>Singapore</option>
+  </select>
+  <select id="rating" required>
+    <option value="">Rating (1 to 5)</option>
+    <option value="5">★★★★★ - Excellent</option>
+    <option value="4">★★★★ - Good</option>
+    <option value="3">★★★ - Average</option>
+    <option value="2">★★ - Poor</option>
+    <option value="1">★ - Very Poor</option>
+  </select>
+  <textarea id="comment" rows="4" placeholder="Your Review or Comment" required></textarea>
+  <button class="btn" onclick="submitReview()">Submit Review</button>
+</div>
+
+<div class="review-list" id="reviewList"></d
   </section>
     <!-- Add Review Button -->
   <button class="btn" aria-label="Add a new review" id="addReviewBtn" type="button">➕ Add Review</button>
@@ -111,13 +127,62 @@
   <div id="errorMsg" class="error-message" role="alert" style="display:none;"></div>
 </main>
   <!-- Optional: Add structured data as JSON-LD for better SEO -->
-<script type="application/ld+json">
-{
-  "@context": "http://schema.org",
-  "@type": "WebSite",
-  "name": "ResilienceOne – Asia Reviews",
-  "url": "https://resilienceone.example.com/"
-}
+<script
+  const reviews = [
+    { name: "Aiko", country: "Japan", rating: 5, comment: "Truly helps me refocus." },
+    { name: "Ravi", country: "India", rating: 5, comment: "Changed how I cope daily." },
+    { name: "Dewi", country: "Indonesia", rating: 5, comment: "Simple and powerful tool." },
+    { name: "Mina", country: "Philippines", rating: 5, comment: "Deeply empowering." },
+    { name: "Thuy", country: "Vietnam", rating: 5, comment: "Helped during my anxiety." },
+    { name: "Sang", country: "South Korea", rating: 5, comment: "Beautiful interface, useful." },
+    { name: "Arjun", country: "Nepal", rating: 5, comment: "Must-have for resilience." },
+    { name: "Fatima", country: "Pakistan", rating: 5, comment: "Helped me stay grounded." },
+    { name: "Liyana", country: "Malaysia", rating: 5, comment: "Peace of mind daily." },
+    { name: "Nok", country: "Thailand", rating: 5, comment: "Simple, effective, reflective." },
+    { name: "Binh", country: "Vietnam", rating: 5, comment: "Very calming effect." },
+    { name: "Mei", country: "Singapore", rating: 5, comment: "Boosted my resilience mindset." },
+    { name: "Kenji", country: "Japan", rating: 5, comment: "Perfect for daily reflection." },
+    { name: "Siti", country: "Indonesia", rating: 5, comment: "Love the prompts!" },
+    { name: "Sunil", country: "India", rating: 5, comment: "Found emotional strength again." },
+    { name: "Imran", country: "Bangladesh", rating: 5, comment: "Much needed in our times." },
+    { name: "Anju", country: "Sri Lanka", rating: 5, comment: "Hopeful and gentle app." },
+    { name: "Hyejin", country: "South Korea", rating: 5, comment: "My daily routine now!" },
+    { name: "Chan", country: "Malaysia", rating: 5, comment: "Motivates me every day." },
+    { name: "Thanh", country: "Vietnam", rating: 5, comment: "Truly life-improving." }
+  ];
+
+  function renderReviews() {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '';
+    reviews.slice().reverse().forEach(r => {
+      list.innerHTML += `
+        <div class="review">
+          <strong>${r.name} (${r.country}) – ${r.rating}★</strong><br>
+          <p>${r.comment}</p>
+        </div>`;
+    });
+  }
+
+  function submitReview() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const country = document.getElementById('country').value;
+    const rating = parseInt(document.getElementById('rating').value);
+    const comment = document.getElementById('comment').value.trim();
+
+    if (!name || !email || !country || !rating || !comment) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    reviews.push({ name, country, rating, comment });
+    renderReviews();
+    document.getElementById("reviewForm").reset();
+    alert("Thank you for your review!");
+  }
+
+  // Initialize reviews on page load
+  renderReviews();
 </script>
 </body>
 </html>
