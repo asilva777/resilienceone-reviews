@@ -5,172 +5,17 @@
   <title>ResilienceOne – Asia Reviews</title>
   <meta name="description" content="Read and submit reviews about ResilienceOne, an app focusing on personal growth in Asia.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="asilva777">
+  <meta property="og:title" content="ResilienceOne – Asia Reviews">
+  <meta property="og:description" content="Read and submit reviews about ResilienceOne, an app focusing on personal growth in Asia.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://resilienceone.example.com/">
+  <meta property="og:image" content="https://resilienceone.example.com/og-image.png">
+  <link rel="icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
-  <script>
-fetch('http://localhost:3001/api/hello')
-  .then(res => res.json())
-  .then(data => {
-    console.log(data.message); // Should print 'Back-end is working!'
-  });
-</script>
-  <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      margin: 0;
-      background-color: #f8f9fa;
-      padding: 20px;
-      color: #222;
-    }
-    main.container {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #222;
-      margin-bottom: 10px;
-    }
-    .charts-row {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .chart-container {
-      width: 300px;
-      min-width: 220px;
-    }
-    .rolling-feed-container {
-      max-width: 100%;
-      margin-bottom: 30px;
-      overflow: hidden;
-      background: #f0f5f0;
-      border-radius: 8px;
-      border: 1px solid #efefef;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      position: relative;
-    }
-    .rolling-feed-content {
-      display: flex;
-      align-items: center;
-      animation: rolling 30s linear infinite;
-      white-space: nowrap;
-      min-width: 100%;
-    }
-    .rolling-review {
-      display: inline-block;
-      margin-right: 50px;
-      font-size: 1rem;
-      color: #333;
-      line-height: 1.2;
-    }
-    @keyframes rolling {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .review-list {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 30px;
-      border-top: 1px solid #ddd;
-    }
-    article.review {
-      padding: 15px;
-      border-bottom: 1px solid #eee;
-    }
-    .review strong {
-      font-size: 1rem;
-      color: #333;
-    }
-    .review small {
-      font-size: 0.8rem;
-      color: #777;
-    }
-    .review p {
-      margin-top: 5px;
-      font-size: 0.95rem;
-    }
-    .btn {
-      display: block;
-      width: 200px;
-      margin: 0 auto 20px;
-      padding: 10px;
-      font-weight: 600;
-      background-color: #52c41a;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
-      transition: background 0.2s;
-    }
-    .btn:focus {
-      outline: 2px solid #222;
-    }
-    .btn[disabled] {
-      background: #bfbfbf;
-      cursor: not-allowed;
-    }
-    .form-container {
-      display: none;
-      margin-top: 20px;
-    }
-    label {
-      font-weight: 600;
-      color: #222;
-      display: block;
-      margin-top: 15px;
-    }
-    input, select, textarea {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      font-family: 'Montserrat', sans-serif;
-      border: 1px solid #bbb;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 1rem;
-    }
-    textarea {
-      resize: vertical;
-    }
-    .sentiment-row {
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    @media (max-width: 600px) {
-      .charts-row { flex-direction: column; gap: 20px; }
-      .chart-container { width: 100%; min-width: 0; }
-    }
-    .loading {
-      text-align: center;
-      color: #52c41a;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-    .success-message {
-      text-align: center;
-      color: #52c41a;
-      font-size: 1rem;
-      margin-bottom: 10px;
-    }
-    .error-message {
-      text-align: center;
-      color: #ff7979;
-      font-size: 1rem;
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
 <main class="container" aria-label="Reviews main content">
@@ -191,51 +36,35 @@ fetch('http://localhost:3001/api/hello')
   <section class="rolling-feed-container" aria-live="polite">
     <div class="rolling-feed-content" id="rollingFeed"></div>
   </section>
-  <section class="review-list" id="reviewList" aria-label="Submitted Reviews"></section>
-  <button class="btn" aria-label="Add a new review" onclick="toggleForm()" id="addReviewBtn">➕ Add Review</button>
+  <section class="review-list" id="reviewList" aria-label="Submitted Reviews">
+    <div id="loadingIndicator" class="loading">Loading reviews...</div>
+  </section>
+  <button class="btn" aria-label="Add a new review" id="addReviewBtn" type="button">➕ Add Review</button>
   <form class="form-container" id="reviewForm" aria-label="Review submission form" autocomplete="off" novalidate>
     <div>
       <label for="name">Your Name</label>
       <input type="text" id="name" name="name" placeholder="Your Name" required aria-required="true" maxlength="50">
+      <span class="inline-error" id="nameError" aria-live="polite"></span>
     </div>
     <div>
       <label for="email">Your Email</label>
       <input type="email" id="email" name="email" placeholder="Your Email" required aria-required="true" maxlength="100" pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$">
+      <span class="inline-error" id="emailError" aria-live="polite"></span>
     </div>
     <div>
       <label for="country">Your Country</label>
-      <select id="country" name="country" required aria-required="true">
-        <option value="">Select Country</option>
-        <option>Philippines</option>
-        <option>India</option>
-        <option>Indonesia</option>
-        <option>Malaysia</option>
-        <option>Vietnam</option>
-        <option>Thailand</option>
-        <option>Japan</option>
-        <option>South Korea</option>
-        <option>Bangladesh</option>
-        <option>Nepal</option>
-        <option>Pakistan</option>
-        <option>Sri Lanka</option>
-        <option>Singapore</option>
-        <option>Other</option>
-      </select>
+      <select id="country" name="country" required aria-required="true"></select>
+      <span class="inline-error" id="countryError" aria-live="polite"></span>
     </div>
     <div>
       <label for="rating">Rating (1 to 5)</label>
-      <select id="rating" name="rating" required aria-required="true">
-        <option value="">Rating (1 to 5)</option>
-        <option value="5">★★★★★ - Excellent</option>
-        <option value="4">★★★★ - Good</option>
-        <option value="3">★★★ - Average</option>
-        <option value="2">★★ - Poor</option>
-        <option value="1">★ - Very Poor</option>
-      </select>
+      <select id="rating" name="rating" required aria-required="true"></select>
+      <span class="inline-error" id="ratingError" aria-live="polite"></span>
     </div>
     <div>
       <label for="comment">Your Review or Comment</label>
       <textarea id="comment" name="comment" rows="4" placeholder="Your Review or Comment" required aria-required="true" maxlength="500"></textarea>
+      <span class="inline-error" id="commentError" aria-live="polite"></span>
     </div>
     <div id="formStatus" class="loading" style="display:none;"></div>
     <button class="btn" type="submit" id="submitBtn" aria-label="Submit your review">Submit Review</button>
@@ -243,199 +72,5 @@ fetch('http://localhost:3001/api/hello')
   <div id="successMsg" class="success-message" role="status" aria-live="polite" style="display:none;"></div>
   <div id="errorMsg" class="error-message" role="alert" style="display:none;"></div>
 </main>
-<script>
-  // Sanitize user input for XSS protection
-  function sanitize(str) {
-    return str.replace(/[&<>"'`=\/]/g, s => (
-      {
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-        '`': '&#96;', '=': '&#61;', '/': '&#47;'
-      }[s]
-    ));
-  }
-
-  let reviews = [];
-
-  async function fetchReviews() {
-    try {
-      const res = await fetch('http://localhost:3000/api/reviews');
-      reviews = await res.json();
-      renderReviews();
-      renderRollingFeed();
-      updateCharts();
-    } catch (e) {
-      document.getElementById('reviewList').innerHTML = '<div class="error-message">Failed to load reviews. Please try again later.</div>';
-    }
-  }
-
-  function renderReviews() {
-    const list = document.getElementById('reviewList');
-    list.innerHTML = '';
-    reviews.forEach(r => {
-      list.innerHTML += `
-        <article class="review">
-          <strong>${sanitize(r.name)} (${sanitize(r.country)}) – ${r.rating}★</strong>
-          <p>${sanitize(r.comment)}</p>
-        </article>`;
-    });
-  }
-
-  function renderRollingFeed() {
-    const feed = document.getElementById('rollingFeed');
-    let rollingContent = '';
-    reviews.forEach(r => {
-      rollingContent += `<span class="rolling-review">⭐ ${r.rating} — "${sanitize(r.comment)}" <b>- ${sanitize(r.name)} (${sanitize(r.country)})</b></span>`;
-    });
-    feed.innerHTML = rollingContent + rollingContent;
-    feed.style.willChange = 'transform';
-  }
-
-  function restartRollingFeedAnimation() {
-    const feed = document.getElementById('rollingFeed');
-    feed.style.animation = 'none';
-    void feed.offsetWidth;
-    feed.style.animation = null;
-  }
-
-  function toggleForm() {
-    const form = document.getElementById("reviewForm");
-    form.style.display = form.style.display === "none" || form.style.display === "" ? "block" : "none";
-    document.getElementById('successMsg').style.display = 'none';
-    document.getElementById('errorMsg').style.display = 'none';
-  }
-
-  function validateForm() {
-    let valid = true;
-    const name = document.getElementById('name');
-    const email = document.getElementById('email');
-    const country = document.getElementById('country');
-    const rating = document.getElementById('rating');
-    const comment = document.getElementById('comment');
-    const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-    if (!name.value.trim() || name.value.length > 50) valid = false;
-    if (!email.value.trim() || !emailPattern.test(email.value) || email.value.length > 100) valid = false;
-    if (!country.value.trim()) valid = false;
-    if (!rating.value.trim()) valid = false;
-    if (!comment.value.trim() || comment.value.length > 500) valid = false;
-    return valid;
-  }
-
-  document.getElementById('reviewForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    document.getElementById('successMsg').style.display = 'none';
-    document.getElementById('errorMsg').style.display = 'none';
-    const formStatus = document.getElementById('formStatus');
-    formStatus.textContent = "Submitting your review...";
-    formStatus.style.display = "block";
-    document.getElementById('submitBtn').disabled = true;
-
-    if (!validateForm()) {
-      formStatus.style.display = 'none';
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('errorMsg').textContent = "Please fill in all fields correctly.";
-      document.getElementById('errorMsg').style.display = 'block';
-      return;
-    }
-
-    const name = sanitize(document.getElementById('name').value.trim());
-    const email = sanitize(document.getElementById('email').value.trim());
-    const country = sanitize(document.getElementById('country').value);
-    const rating = parseInt(document.getElementById('rating').value);
-    const comment = sanitize(document.getElementById('comment').value.trim());
-
-    try {
-      const res = await fetch('http://localhost:3000/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, country, rating, comment })
-      });
-      if (!res.ok) throw new Error('Server error');
-      await fetchReviews();
-      document.getElementById("reviewForm").reset();
-      document.getElementById("reviewForm").style.display = "none";
-      formStatus.style.display = 'none';
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('successMsg').textContent = "Thank you for your review!";
-      document.getElementById('successMsg').style.display = 'block';
-    } catch (e) {
-      formStatus.style.display = 'none';
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('errorMsg').textContent = "Failed to submit review. Please try again.";
-      document.getElementById('errorMsg').style.display = 'block';
-    }
-  });
-
-  let ratingPieChart, countryBarChart;
-  function updateCharts() {
-    // Rating distribution
-    const ratingCounts = [0, 0, 0, 0, 0]; // index 0: 1-star, ..., 4: 5-star
-    reviews.forEach(r => {
-      if (r.rating >= 1 && r.rating <= 5) ratingCounts[r.rating - 1]++;
-    });
-    // Country distribution (top 8, rest grouped as "Other")
-    const countryMap = {};
-    reviews.forEach(r => {
-      countryMap[r.country] = (countryMap[r.country] || 0) + 1;
-    });
-    const sortedCountries = Object.entries(countryMap).sort((a, b) => b[1] - a[1]);
-    const topCountries = sortedCountries.slice(0, 8);
-    const otherCount = sortedCountries.slice(8).reduce((sum, [, val]) => sum + val, 0);
-    const countryLabels = topCountries.map(([k]) => k);
-    if (otherCount > 0) countryLabels.push("Other");
-    const countryData = topCountries.map(([, v]) => v);
-    if (otherCount > 0) countryData.push(otherCount);
-
-    // Pie Chart for Ratings
-    if (ratingPieChart) ratingPieChart.destroy();
-    const pieCtx = document.getElementById('ratingPieChart').getContext('2d');
-    ratingPieChart = new Chart(pieCtx, {
-      type: 'pie',
-      data: {
-        labels: ["1★", "2★", "3★", "4★", "5★"],
-        datasets: [{
-          data: ratingCounts,
-          backgroundColor: [
-            "#ff7979", "#f6e58d", "#badc58", "#7ed6df", "#6ab04c"
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Rating Distribution' },
-          legend: { position: 'bottom' }
-        }
-      }
-    });
-
-    // Bar Chart for Countries
-    if (countryBarChart) countryBarChart.destroy();
-    const barCtx = document.getElementById('countryBarChart').getContext('2d');
-    countryBarChart = new Chart(barCtx, {
-      type: 'bar',
-      data: {
-        labels: countryLabels,
-        datasets: [{
-          data: countryData,
-          backgroundColor: "#52c41a"
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Reviews by Country' },
-          legend: { display: false }
-        },
-        scales: {
-          x: { title: { display: true, text: 'Country' }},
-          y: { beginAtZero: true, title: { display: true, text: 'Count' }, ticks: { precision:0 } }
-        }
-      }
-    });
-  }
-
-  // Initial render
-  fetchReviews();
-</script>
 </body>
 </html>
