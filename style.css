@@ -85,8 +85,8 @@ form input:focus, form textarea:focus {
 
 form button {
   padding: 10px 0;
-  background: #1e88e5;
-  color: #fff;
+  background: #ffdf00;
+  color: #000000;
   border: none;
   border-radius: 5px;
   font-weight: 600;
