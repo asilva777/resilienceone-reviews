@@ -1,4 +1,4 @@
-# ResilienceOne App Reviews Dashboard
+#Reviews Dashboard
 
 This project is a dynamic, responsive HTML dashboard that visualizes and displays user reviews for the **ResilienceOne App**. It combines a live scrolling feed of generated user reviews with an interactive infographic summarizing review statistics.
 
